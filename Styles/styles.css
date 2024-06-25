@@ -1,0 +1,84 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+@import url("https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&family=Satisfy&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: url("../Images/backgound.jpg");
+  background-size: auto;
+  background-repeat: no-repeat;
+}
+
+#play {
+  padding: 10px;
+  border: none;
+  background-color: transparent;
+
+  & :hover {
+    transform: scale(1.3);
+    transition: transform 0.1s;
+  }
+
+  & img {
+    width: 130px;
+  }
+}
+
+.start-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 20px;
+}
+
+.single-card {
+  font-size: 40px;
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+  &:hover {
+    box-shadow: rgba(255, 255, 255, 0.705) 0px 0px 5px 5px;
+  }
+}
+
+.grid-box {
+  display: grid;
+  padding: 20px;
+  gap: 10px;
+  column-gap: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.label {
+  font-family: "Literata", serif;
+  font-size: 18px;
+
+  & > b {
+    font-family: "Satisfy", cursive;
+    font-size: 24px;
+  }
+}
+
+.time-progress {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+#time-bar {
+  transition: width 0.6s ease-in;
+}
+.back {
+  background-color: #c0392b;
+  color: white;
+}
+
+.front {
+  background-color: green;
+}

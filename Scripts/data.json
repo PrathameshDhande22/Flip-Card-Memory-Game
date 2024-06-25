@@ -1,0 +1,42 @@
+{
+  "symbols": [
+    "bi-airplane-engines-fill",
+    "bi-alarm-fill",
+    "bi-android2",
+    "bi-apple",
+    "bi-arrow-down-circle-fill",
+    "bi-arrow-right-circle-fill",
+    "bi-arrow-up-circle-fill",
+    "bi-award-fill",
+    "bi-backpack3-fill",
+    "bi-bag-fill",
+    "bi-bar-chart-fill",
+    "bi-bank2",
+    "bi-bell-fill",
+    "bi-bluetooth",
+    "bi-boombox-fill",
+    "bi-boxes",
+    "bi-bug-fill",
+    "bi-building-fill",
+    "bi-bus-front-fill",
+    "bi-cake2-fill",
+    "bi-calculator-fill",
+    "bi-camera-fill",
+    "bi-cart-fill",
+    "bi-chat-left-text-fill",
+    "bi-cloud-fill",
+    "bi-cup-hot-fill",
+    "bi-database-fill",
+    "bi-emoji-heart-eyes-fill",
+    "bi-envelope-fill",
+    "bi-floppy-fill",
+    "bi-lightbulb-fill",
+    "bi-shield-fill-check"
+  ],
+  "timer": {
+    "2": 2,
+    "4": 4,
+    "6": 8,
+    "8": 10
+  }
+}
