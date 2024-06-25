@@ -8,7 +8,7 @@ const gridSelection = $("#grid-options");
 let isStartPage = true;
 
 // * Variable to store the no of grids selected by user
-let noOfGrids = 6;
+let noOfGrids = 4;
 
 // * Start page dom
 const startPageDom = $("#start-game");
@@ -47,9 +47,6 @@ let inc = 0;
 // * Array to store the click element
 let flipped_Elements = [];
 
-// * Boolean variable to check for second
-let isSecond = false;
-
 // * Selecting the label of the moves and pairs
 const pairsFoundlabel = $("#pairs-found-label");
 const movesLabel = $("#moves-label");
@@ -61,16 +58,17 @@ $.getJSON("../Scripts/data.json", function (res) {
 });
 
 // ? Function to create the div Element boxes
-function createElement(className, value, isFirst) {
-  let divElement = $("<div>").addClass("game-card");
-  isFirst ? divElement.attr("id", value) : divElement.attr("id", `idx${value}`);
+function createElement(className, value) {
+  let divElement = $("<div>").addClass("flip-container");
+  let flipper = $("<div>").addClass("flipper game-card");
   let frontElement = $("<div>")
     .addClass(`front single-card`)
     .data("place", value);
   let backElement = $("<div>")
     .addClass(`bi ${className} back single-card`)
     .data("place", value);
-  divElement.append(frontElement, backElement);
+  flipper.append(frontElement, backElement);
+  divElement.append(flipper);
   return divElement;
 }
 
@@ -90,10 +88,7 @@ function setGame(grids) {
   gridBoxDom.css("grid-template-columns", "auto ".repeat(grids));
   inc = 100 / getSeconds(timer[grids]);
   for (let i = 0; i < (grids * grids) / 2; i++) {
-    grid_box.push(
-      createElement(symbols[i], i, true),
-      createElement(symbols[i], i, false)
-    );
+    grid_box.push(createElement(symbols[i], i), createElement(symbols[i], i));
   }
   grid_box = shuffleArray(grid_box);
   gridBoxDom.append(grid_box);
@@ -164,61 +159,27 @@ $(document).ready(function () {
 });
 //#endregion
 
-// ? Increase Moves function
-function increaseMoves(move) {
-  moves++;
-  movesLabel.text(moves);
-}
-
 // ! Event Listener after document is loaded load the flips
 $(function () {
-  // * Game Card div DOM
   let gameCards = $(".game-card");
 
-  function removeFirstTwo() {
-    flipped_Elements.splice(0, 2);
-  }
+  gameCards.toArray().map(function (value) {});
 
-  // ? flip Back for the Pushed element.
   function flipBack() {
     flipped_Elements.map((value) => {
-      $(value).parents(".game-card").flip(false);
+      $(value).removeClass("flipped")
     });
-    removeFirstTwo();
+    flipped_Elements.splice(0,2)
   }
-
-  // * Click functions on each game card
   gameCards.on("click", function (e) {
-    if (!$(e.target).is(".back")) {
-      if (flipped_Elements.length >= 2) {
-        matched();
-        // TODO: Check the Element and remove their flips
-      }
-      increaseMoves();
-      flipped_Elements.push(e.target);
-    }
-    console.log($(e.target));
-  });
-
-  // * Attaching the flip function to every game cards
-  gameCards.each(function (idx, value) {
-    $(value)
-      .flip({ trigger: "manual" })
-      .click(function () {
-        $(this).flip(true);
-      });
-  });
-
-  // ? Match pairs found function
-  function matched(target) {
-    if (
-      $(flipped_Elements[0]).data("place") ===
-      $(flipped_Elements[1]).data("place")
-    ) {
-      console.log("working");
-      removeFirstTwo();
-    } else {
+    if (flipped_Elements.length >= 2) {
       flipBack();
+      // TODO: Check the Element and remove their flips
     }
-  }
+    flipped_Elements.push(e.target);
+  });
+
+  $(".flip-container").click(function () {
+    $(this).addClass("flipped");
+  });
 });
