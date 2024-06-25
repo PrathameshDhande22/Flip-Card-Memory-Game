@@ -8,7 +8,7 @@ const gridSelection = $("#grid-options");
 let isStartPage = true;
 
 // * Variable to store the no of grids selected by user
-let noOfGrids = 2;
+let noOfGrids = 6;
 
 // * Start page dom
 const startPageDom = $("#start-game");
