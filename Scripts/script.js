@@ -169,9 +169,15 @@ $(document).ready(function () {
 //#endregion
 
 // ? Increase Moves function
-function increaseMoves(move) {
+function increaseMoves() {
   moves++;
   movesLabel.text(moves);
+}
+
+// ? function to increase the pairs
+function increasePairs() {
+  pairs++;
+  pairsFoundlabel.text(pairs);
 }
 
 // ! Event Listener after document is loaded load the flips
@@ -179,6 +185,20 @@ $(function () {
   // * Game Card div DOM
   let gameCards = $(".game-card");
   minutes = timer[noOfGrids];
+
+  function showToasts(text, heading) {
+    $.toast({
+      heading: "Information",
+      text: text,
+      heading: heading,
+      icon: "success",
+      loader: true,
+      showHideTransition: "fade",
+      position: "left",
+      loaderBg: "#e8960f",
+      bgColor: "#742eff",
+    });
+  }
 
   // ? Function to remove the first 2 elements from the array
   function removeFirstTwo() {
@@ -224,7 +244,9 @@ $(function () {
       $(flipped_Elements[1]).data("place")
     ) {
       console.log("working");
+      increasePairs();
       removeFirstTwo();
+      showToasts("You found New Pairs", "Pair Found");
     }
   }
 });
