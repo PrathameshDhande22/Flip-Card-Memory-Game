@@ -123,7 +123,7 @@ let interval = setInterval(function () {
   }
   if (minutes === timer[noOfGrids]) {
     clearInterval(interval);
-    // TODO: Show The time out Modal here
+  
   }
   $("#timer").html(`<b>${minutes}</b> min : <b>${seconds}</b> secs`);
   progress += inc;
@@ -133,7 +133,7 @@ let interval = setInterval(function () {
 //#endregion
 
 // ! Event listener if page is refereshed
-// TODO: Undo these before production
+n
 /* $(window).on("beforeunload", function (e) {
   e.preventDefault();
 }); */
@@ -152,7 +152,6 @@ playbtn.click(function () {
 
 //#endregion
 
-// TODO: Remove these region after development
 //#region temporary
 $(document).ready(function () {
   setGame(noOfGrids);
@@ -174,8 +173,7 @@ $(function () {
   gameCards.on("click", function (e) {
     if (flipped_Elements.length >= 2) {
       flipBack();
-      // TODO: Check the Element and remove their flips
-    }
+       }
     flipped_Elements.push(e.target);
   });
 

@@ -8,7 +8,7 @@ const gridSelection = $("#grid-options");
 let isStartPage = true;
 
 // * Variable to store the no of grids selected by user
-let noOfGrids = 6;
+let noOfGrids = 2;
 
 // * Start page dom
 const startPageDom = $("#start-game");
@@ -65,7 +65,7 @@ function createElement(className, value, isFirst) {
   let divElement = $("<div>").addClass("game-card");
   isFirst ? divElement.attr("id", value) : divElement.attr("id", `idx${value}`);
   let frontElement = $("<div>")
-    .addClass(`front single-card`)
+    .addClass(`front single-card ${className}`)
     .data("place", value);
   let backElement = $("<div>")
     .addClass(`bi ${className} back single-card`)
@@ -120,19 +120,23 @@ function getSeconds(minutes) {
 
 // ! Event Listener for timer
 let interval = setInterval(function () {
-  seconds++;
-
-  if (seconds === 60) {
-    minutes++;
-    seconds = 0;
-  }
-  if (minutes === timer[noOfGrids]) {
-    clearInterval(interval);
-    // TODO: Show The time out Modal here
+  if (seconds === 0) {
+    seconds = 60;
+    minutes--;
+    if (minutes === -1 && seconds == 60) {
+      minutes = 0;
+      seconds = 0;
+    }
+  } else {
+    seconds--;
   }
   $("#timer").html(`<b>${minutes}</b> min : <b>${seconds}</b> secs`);
   progress += inc;
   $("#time-bar").css("width", progress + "%");
+  if (minutes === 0 && seconds === 0) {
+    clearInterval(interval);
+    // TODO: Show The time out Modal here
+  }
 }, 1000);
 
 //#endregion
@@ -174,13 +178,16 @@ function increaseMoves(move) {
 $(function () {
   // * Game Card div DOM
   let gameCards = $(".game-card");
+  minutes = timer[noOfGrids];
 
+  // ? Function to remove the first 2 elements from the array
   function removeFirstTwo() {
     flipped_Elements.splice(0, 2);
   }
 
   // ? flip Back for the Pushed element.
   function flipBack() {
+    console.log(flipped_Elements);
     flipped_Elements.map((value) => {
       $(value).parents(".game-card").flip(false);
     });
@@ -191,11 +198,12 @@ $(function () {
   gameCards.on("click", function (e) {
     if (!$(e.target).is(".back")) {
       if (flipped_Elements.length >= 2) {
-        matched();
-        // TODO: Check the Element and remove their flips
+        flipBack();
       }
       increaseMoves();
       flipped_Elements.push(e.target);
+      isSecond ? checkmatched() : null;
+      flipped_Elements.length >= 1 ? (isSecond = true) : null;
     }
     console.log($(e.target));
   });
@@ -210,15 +218,13 @@ $(function () {
   });
 
   // ? Match pairs found function
-  function matched(target) {
+  function checkmatched() {
     if (
       $(flipped_Elements[0]).data("place") ===
       $(flipped_Elements[1]).data("place")
     ) {
       console.log("working");
       removeFirstTwo();
-    } else {
-      flipBack();
     }
   }
 });
