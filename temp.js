@@ -181,3 +181,19 @@ $(function () {
     $(this).addClass("flipped");
   });
 });
+
+
+if (minutes === -1 && seconds == 60) {
+  minutes = 0;
+  seconds = 0;
+}
+
+
+min=3
+seconds=30
+
+actualmin=6
+actualsec=0
+
+actualmin-min= 3 
+seconds-actualsec=30

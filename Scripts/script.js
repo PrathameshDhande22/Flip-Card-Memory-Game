@@ -20,7 +20,7 @@ const gridBoxDom = $("#grids");
 let symbols = [];
 
 // * Array to Store the timer
-let timer = [];
+let timer = {};
 
 // * Array to store the grids boxes
 let grid_box = [];
@@ -58,22 +58,30 @@ const movesLabel = $("#moves-label");
 $.getJSON("https://api.npoint.io/b3fe4e7c0075bd200b4d", function (res) {
   symbols = res?.symbols;
   timer = res?.timer;
+  createGridSelectOption();
 }).fail(function () {
-  console.log("failed");
+  alert("API Failed to get the data.");
 });
+
+// ? Function to dynamically create options
+function createGridSelectOption() {
+  Object.keys(timer).forEach((value) => {
+    gridSelection.append($("<option>").val(value).text(`${value} x ${value}`));
+  });
+}
 
 // ? Function to create the div Element boxes
 function createElement(className, value, isFirst) {
-  let divElement = $("<div>").addClass("game-card");
-  isFirst ? divElement.attr("id", value) : divElement.attr("id", `idx${value}`);
+  let divElement = $("<div>")
+    .addClass("game-card")
+    .attr("id", isFirst ? value : `idx${value}`);
   let frontElement = $("<div>")
     .addClass(`front single-card ${className}`)
     .data("place", value);
   let backElement = $("<div>")
     .addClass(`bi ${className} back single-card`)
     .data("place", value);
-  divElement.append(frontElement, backElement);
-  return divElement;
+  return divElement.append(frontElement, backElement);
 }
 
 // ? Shuffle The array of the grid box
@@ -91,7 +99,7 @@ function shuffleArray(array) {
 function setGame(grids) {
   minutes = timer[grids];
   gridBoxDom.css("grid-template-columns", "auto ".repeat(grids));
-  inc = 100 / getSeconds(timer[grids]);
+  inc = 100 / (minutes * 60);
   for (let i = 0; i < (grids * grids) / 2; i++) {
     grid_box.push(
       createElement(symbols[i], i, true),
@@ -106,19 +114,9 @@ function setGame(grids) {
 
 // ? Function to set or remove Start Page
 function setStartPage(isStart) {
-  if (isStart) {
-    gamePageDom.prop("hidden", true);
-    startPageDom.show();
-  } else {
-    startPageDom.hide();
-    gamePageDom.prop("hidden", false);
-    setGame(noOfGrids);
-  }
-}
-
-// ? Function to get the seconds from minutes
-function getSeconds(minutes) {
-  return minutes * 60;
+  startPageDom.toggle(isStart);
+  gamePageDom.prop("hidden", isStart);
+  if (!isStart) setGame(noOfGrids);
 }
 
 // ! Event listener if page is refereshed
@@ -137,23 +135,15 @@ playbtn.click(function () {
 });
 
 // ? Increase Moves function
-function increaseMoves(toReset) {
-  if (toReset) {
-    movesLabel.text(0);
-  } else {
-    moves++;
-    movesLabel.text(moves);
-  }
+function updateMoves(reset = false) {
+  moves = reset ? 0 : moves + 1;
+  movesLabel.text(moves);
 }
 
 // ? function to increase the pairs
-function increasePairs(toReset) {
-  if (toReset) {
-    pairsFoundlabel.text(0);
-  } else {
-    pairs++;
-    pairsFoundlabel.text(pairs);
-  }
+function updatePairs(reset = false) {
+  pairs = reset ? 0 : pairs + 1;
+  pairsFoundlabel.text(pairs);
 }
 
 // ? Function to assign the flip functionality to each card
@@ -173,7 +163,7 @@ function assignfunctionalityTOCards() {
   // * Click functions on each game card
   gameCards.on("click", function (e) {
     if (!$(e.target).is(".back")) {
-      increaseMoves(false);
+      updateMoves();
       flipped_Elements.push(e.target);
       if (flipped_Elements.length >= 2) {
         checkmatched();
@@ -184,20 +174,20 @@ function assignfunctionalityTOCards() {
 
 // ? These Functions resets all the variables
 function resetALL() {
-  flipped_Elements.splice(0, flipped_Elements.length);
+  flipped_Elements = [];
   minutes = 0;
   seconds = 0;
   pairs = 0;
   moves = 0;
   interval = 0;
-  grid_box.splice(0, grid_box.length);
+  grid_box = [];
   noOfGrids = 0;
   gridSelection.val("select");
   progress = 0;
   $("#timer").html(`<b>00</b> min : <b>00</b> secs`);
   $("#time-bar").css("width", "0%");
-  increaseMoves(true);
-  increasePairs(true);
+  updateMoves(true);
+  updatePairs(true);
   gridBoxDom.empty();
 }
 
@@ -207,25 +197,21 @@ function startInterval() {
     if (seconds === 0) {
       seconds = 59;
       minutes--;
-      if (minutes === -1 && seconds == 60) {
-        minutes = 0;
-        seconds = 0;
-      }
     } else {
       seconds--;
     }
-    $("#timer").html(`<b>${minutes}</b> min : <b>${seconds}</b> secs`);
-    progress += inc;
-    $("#time-bar").css("width", progress + "%");
     if (minutes === 0 && seconds === 0) {
+      clearInterval(interval);
       if (!checkIsWinner()) {
-        clearInterval(interval);
         showModal(
           "Time OUT !",
           getModalMessage("../Images/timeout.png", "You LOST !")
         );
       }
     }
+    $("#timer").html(`<b>${minutes}</b> min : <b>${seconds}</b> secs`);
+    progress += inc;
+    $("#time-bar").css("width", progress + "%");
   }, 1000);
 }
 
@@ -241,19 +227,15 @@ function showToasts(text, heading) {
     position: "left",
     loaderBg: "#e8960f",
     bgColor: "#742eff",
+    stack: false,
+    hideAfter: 1000,
   });
-}
-
-// ? Function to remove the first 2 elements from the array
-function removeFirstTwo() {
-  flipped_Elements.splice(0, 2);
 }
 
 // ? flip Back for the Pushed element.
 function flipBack() {
-  $(flipped_Elements[0]).parents(".game-card").flip(false);
-  $(flipped_Elements[1]).parents(".game-card").flip(false);
-  removeFirstTwo();
+  flipped_Elements.forEach((card) => $(card).parents(".game-card").flip(false));
+  flipped_Elements = [];
 }
 
 // ? Match pairs found function
@@ -262,14 +244,12 @@ function checkmatched() {
     $(flipped_Elements[0]).data("place") ===
     $(flipped_Elements[1]).data("place")
   ) {
-    increasePairs(false);
+    updatePairs();
     showToasts("You found New Pair", "Pair Found");
-    checkIsWinner();
-    removeFirstTwo();
+    if (checkIsWinner()) clearInterval(interval);
+    flipped_Elements = [];
   } else {
-    setTimeout(() => {
-      flipBack();
-    }, 300);
+    setTimeout(flipBack, 300);
   }
 }
 
@@ -291,7 +271,6 @@ function getModalMessage(image, winner) {
 // ? Function to check if game is in winning mode.
 function checkIsWinner() {
   if (pairs === (noOfGrids * noOfGrids) / 2) {
-    clearInterval(interval);
     showModal(
       "Congratulations !",
       getModalMessage("../Images/winner.png", "You Won !!")
