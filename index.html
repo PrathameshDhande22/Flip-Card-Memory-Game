@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="./Styles/styles.css" />
     <link rel="shortcut icon" href="./Images/favicon.png" type="image/x-icon" />
     <script src="./External/flip-master/dist/jquery.flip.min.js"></script>
-    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="" />
     <script src="./External/jquery-toast-plugin-master/dist/jquery.toast.min.js"></script>
     <link
       rel="stylesheet"
@@ -92,21 +92,10 @@
       <!-- Grids -->
       <div id="grids" class="grid-box"></div>
     </div>
-    <!-- Button trigger modal -->
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-bs-toggle="modal"
-      data-bs-target="#exampleModal"
-      hidden
-    >
-      Launch demo modal
-    </button>
-
     <!-- Modal -->
     <div
       class="modal fade"
-      id="exampleModal"
+      id="game-modal"
       tabindex="-1"
       aria-labelledby="exampleModalLabel"
       aria-hidden="true"
@@ -114,7 +103,9 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+            <h1 class="modal-title fs-5" id="game-modal-label">
+              Game Modal Label
+            </h1>
             <button
               type="button"
               class="btn-close"
@@ -122,16 +113,15 @@
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body">...</div>
+          <div class="modal-body"></div>
           <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-outline-success"
               data-bs-dismiss="modal"
             >
-              Close
+              Back To Main Page
             </button>
-            <button type="button" class="btn btn-primary">Save changes</button>
           </div>
         </div>
       </div>

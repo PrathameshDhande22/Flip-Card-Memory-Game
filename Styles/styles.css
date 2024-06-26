@@ -82,3 +82,7 @@ body {
 .front {
   background-color: green;
 }
+
+.img-modal-body{
+  width: 130px;
+}

@@ -4,11 +4,7 @@ const playbtn = $("#play");
 // * Grid Selection Option dom
 const gridSelection = $("#grid-options");
 
-// * to decide whether start-page is opened or game page
-let isStartPage = true;
-
 // * Variable to store the no of grids selected by user
-// TODO : Make the changes here before setting hidden for game page
 let noOfGrids = 0;
 
 // * Start page dom
@@ -48,15 +44,18 @@ let inc = 0;
 // * Array to store the click element
 let flipped_Elements = [];
 
-// * Boolean variable to check for second
-let isSecond = false;
+// * To store the setinterval id.
+let interval = 0;
+
+// * DOM of modal
+const gameModal = $("#game-modal");
 
 // * Selecting the label of the moves and pairs
 const pairsFoundlabel = $("#pairs-found-label");
 const movesLabel = $("#moves-label");
 
 // * To fetch the json data for storing the symbols and timer
-$.getJSON("./Scripts/data.json", function (res) {
+$.getJSON("https://api.npoint.io/b3fe4e7c0075bd200b4d", function (res) {
   symbols = res?.symbols;
   timer = res?.timer;
 }).fail(function () {
@@ -123,10 +122,9 @@ function getSeconds(minutes) {
 }
 
 // ! Event listener if page is refereshed
-// TODO: Undo these before production
-/* $(window).on("beforeunload", function (e) {
+$(window).on("beforeunload", function (e) {
   e.preventDefault();
-}); */
+});
 
 // ! Event Listener for play button
 playbtn.click(function () {
@@ -134,24 +132,31 @@ playbtn.click(function () {
     alert("Please Select Proper No of Grids.");
   } else {
     noOfGrids = gridSelection.val();
-    isStartPage = false;
     setStartPage(false);
   }
 });
 
-
 // ? Increase Moves function
-function increaseMoves() {
-  moves++;
-  movesLabel.text(moves);
+function increaseMoves(toReset) {
+  if (toReset) {
+    movesLabel.text(0);
+  } else {
+    moves++;
+    movesLabel.text(moves);
+  }
 }
 
 // ? function to increase the pairs
-function increasePairs() {
-  pairs++;
-  pairsFoundlabel.text(pairs);
+function increasePairs(toReset) {
+  if (toReset) {
+    pairsFoundlabel.text(0);
+  } else {
+    pairs++;
+    pairsFoundlabel.text(pairs);
+  }
 }
 
+// ? Function to assign the flip functionality to each card
 function assignfunctionalityTOCards() {
   // * Game Card div DOM
   let gameCards = $(".game-card");
@@ -159,7 +164,7 @@ function assignfunctionalityTOCards() {
   // * Attaching the flip function to every game cards
   gameCards.each(function (idx, value) {
     $(value)
-      .flip({ trigger: "manual" })
+      .flip({ trigger: "manual", speed: "300" })
       .click(function () {
         $(this).flip(true);
       });
@@ -168,20 +173,39 @@ function assignfunctionalityTOCards() {
   // * Click functions on each game card
   gameCards.on("click", function (e) {
     if (!$(e.target).is(".back")) {
-      increaseMoves();
+      increaseMoves(false);
       flipped_Elements.push(e.target);
-      console.log(flipped_Elements.length)
-      /* isSecond ? checkmatched() : null;
-      flipped_Elements.length >= 1 ? (isSecond = true) : null; */
+      if (flipped_Elements.length >= 2) {
+        checkmatched();
+      }
     }
-    console.log($(e.target));
   });
 }
 
+// ? These Functions resets all the variables
+function resetALL() {
+  flipped_Elements.splice(0, flipped_Elements.length);
+  minutes = 0;
+  seconds = 0;
+  pairs = 0;
+  moves = 0;
+  interval = 0;
+  grid_box.splice(0, grid_box.length);
+  noOfGrids = 0;
+  gridSelection.val("select");
+  progress = 0;
+  $("#timer").html(`<b>00</b> min : <b>00</b> secs`);
+  $("#time-bar").css("width", "0%");
+  increaseMoves(true);
+  increasePairs(true);
+  gridBoxDom.empty();
+}
+
+// ? function to start the interval or timer with progress bar.
 function startInterval() {
-  let interval = setInterval(function () {
+  interval = setInterval(function () {
     if (seconds === 0) {
-      seconds = 60;
+      seconds = 59;
       minutes--;
       if (minutes === -1 && seconds == 60) {
         minutes = 0;
@@ -194,12 +218,18 @@ function startInterval() {
     progress += inc;
     $("#time-bar").css("width", progress + "%");
     if (minutes === 0 && seconds === 0) {
-      clearInterval(interval);
-      // TODO: Show The time out Modal here
+      if (!checkIsWinner()) {
+        clearInterval(interval);
+        showModal(
+          "Time OUT !",
+          getModalMessage("../Images/timeout.png", "You LOST !")
+        );
+      }
     }
   }, 1000);
 }
 
+// ? Show toasts function
 function showToasts(text, heading) {
   $.toast({
     heading: "Information",
@@ -221,10 +251,8 @@ function removeFirstTwo() {
 
 // ? flip Back for the Pushed element.
 function flipBack() {
-  console.log(flipped_Elements);
-  flipped_Elements.map((value) => {
-    $(value).parents(".game-card").flip(false);
-  });
+  $(flipped_Elements[0]).parents(".game-card").flip(false);
+  $(flipped_Elements[1]).parents(".game-card").flip(false);
   removeFirstTwo();
 }
 
@@ -234,9 +262,57 @@ function checkmatched() {
     $(flipped_Elements[0]).data("place") ===
     $(flipped_Elements[1]).data("place")
   ) {
-    console.log("working");
-    increasePairs();
+    increasePairs(false);
+    showToasts("You found New Pair", "Pair Found");
+    checkIsWinner();
     removeFirstTwo();
-    showToasts("You found New Pairs", "Pair Found");
+  } else {
+    setTimeout(() => {
+      flipBack();
+    }, 300);
   }
+}
+
+// ? Returns the modal message
+function getModalMessage(image, winner) {
+  return `
+    <div class="d-flex gap-3 justify-content-center flex-column align-items-center">
+    <img src="${image}" class="img-modal-body">
+    <h4>${winner}</h4>
+    <div class="d-flex gap-2 flex-column">
+    <span>Time : <b>${timer[noOfGrids]}</b> min</span>
+    <span>Moves : <b>${moves}</b></span>
+    <span>Pairs Found : <b>${pairs}</b></span>
+    </div>
+    </div>
+    `;
+}
+
+// ? Function to check if game is in winning mode.
+function checkIsWinner() {
+  if (pairs === (noOfGrids * noOfGrids) / 2) {
+    clearInterval(interval);
+    showModal(
+      "Congratulations !",
+      getModalMessage("../Images/winner.png", "You Won !!")
+    );
+    return true;
+  }
+  return false;
+}
+
+// ? these function shows the modal whenever the timeout and wins the game.
+function showModal(title, html) {
+  $(function () {
+    gameModal
+      .find(".modal-footer button,.modal-header button")
+      .click(function () {
+        resetALL();
+        setStartPage(true);
+      });
+    gameModal.find(".modal-title").text(title);
+    gameModal.find(".modal-body").html(html);
+    const myModal = new bootstrap.Modal("#game-modal");
+    myModal.show();
+  });
 }
