@@ -76,7 +76,7 @@ function createElement(className, value, isFirst) {
     .addClass("game-card")
     .attr("id", isFirst ? value : `idx${value}`);
   let frontElement = $("<div>")
-    .addClass(`front single-card ${className}`)
+    .addClass(`front single-card`)
     .data("place", value);
   let backElement = $("<div>")
     .addClass(`bi ${className} back single-card`)
@@ -205,7 +205,11 @@ function startInterval() {
       if (!checkIsWinner()) {
         showModal(
           "Time OUT !",
-          getModalMessage("../Images/timeout.png", "You LOST !")
+          getModalMessage(
+            "../Images/timeout.png",
+            "You LOST !",
+            `<span>Time Given: <b>${timer[noOfGrids]}</b> min : <b>00</b> secs</span>`
+          )
         );
       }
     }
@@ -253,14 +257,22 @@ function checkmatched() {
   }
 }
 
+// ? Function to Calculate difference between two timers
+function calculateDiffTime() {
+  let diffTime = dayjs
+    .duration({ minutes: timer[noOfGrids] })
+    .subtract(dayjs.duration({ minutes: minutes, seconds: seconds }));
+  return [diffTime.minutes(), diffTime.seconds()];
+}
+
 // ? Returns the modal message
-function getModalMessage(image, winner) {
+function getModalMessage(image, winner, timeMessage) {
   return `
     <div class="d-flex gap-3 justify-content-center flex-column align-items-center">
     <img src="${image}" class="img-modal-body">
     <h4>${winner}</h4>
     <div class="d-flex gap-2 flex-column">
-    <span>Time : <b>${timer[noOfGrids]}</b> min</span>
+   ${timeMessage}
     <span>Moves : <b>${moves}</b></span>
     <span>Pairs Found : <b>${pairs}</b></span>
     </div>
@@ -271,9 +283,14 @@ function getModalMessage(image, winner) {
 // ? Function to check if game is in winning mode.
 function checkIsWinner() {
   if (pairs === (noOfGrids * noOfGrids) / 2) {
+    let diffTime = calculateDiffTime();
     showModal(
       "Congratulations !",
-      getModalMessage("../Images/winner.png", "You Won !!")
+      getModalMessage(
+        "../Images/winner.png",
+        "You Won !!",
+        `<span>Time Taken: <b>${diffTime[0]}</b> min : <b>${diffTime[1]}</b> secs</span>`
+      )
     );
     return true;
   }
@@ -295,3 +312,5 @@ function showModal(title, html) {
     myModal.show();
   });
 }
+
+calculateDiffTime();

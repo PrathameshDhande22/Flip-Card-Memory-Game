@@ -189,11 +189,9 @@ if (minutes === -1 && seconds == 60) {
 }
 
 
-min=3
-seconds=30
+3:00
 
-actualmin=6
-actualsec=0
+1:43
+= 1:17
 
-actualmin-min= 3 
-seconds-actualsec=30
+3:00

@@ -1,79 +1,64 @@
-<div id="start-game" class="container" hidden>
-    <div class="start-page">
-      <div class="bg-light p-3 rounded-5 border border-5 border-danger">
-        <h2 class="text-center py-4 text-uppercase fw-bold text-success">
-          Flip The Card - Memory Game
-        </h2>
-        <div
-          class="d-flex flex-column flex-wrap justify-content-center align-items-center gap-3"
-        >
-          <select name="grid-selection" id="grid-options" class="form-select">
-            <option value="select">Select Grid</option>
-            <option value="2">2 x 2</option>
-            <option value="4">4 x 4</option>
-            <option value="6">6 x 6</option>
-            <option value="8">8 x 8</option>
-          </select>
-          <button type="button" id="play" class="">
-            <img src="./Images/play-button.png" alt="Play button image" />
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Game Page -->
-  <div id="game-page" class="mt-3m">
-    <!-- Score Card -->
-    <div
-      id="score-card"
-      class="bg-white rounded-3 user-select-none position-relative"
-    >
-      <div
-        class="d-flex flex-row flex-wrap justify-content-between align-items-center px-4 py-3"
-      >
-        <span class="text-uppercase fw-bold fs-5">Scorecard</span>
-        <span class="label"> Pairs: <b id="pairs-found-label">0</b> </span>
-        <span class="label">Moves : <b id="moves-label">0</b></span>
-        <span class="label" id="timer"><b>00</b> mins: <b>00</b> secs</span>
-      </div>
-      <div
-        class="progress time-progress"
-        role="progressbar"
-        aria-label="progress bar Example"
-        aria-valuenow="0"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        style="height: 7px"
-      >
-        <div
-          class="progress-bar bg-info"
-          id="time-bar"
-          style="width: 0%"
-        ></div>
-      </div>
-    </div>
-    <!-- Grids -->
-    <div id="grids" class="grid-box"></div>
-  </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Timer</title>
+    <!-- Include Day.js from a CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/duration.js"></script>
+    <script>
+        dayjs.extend(dayjs_plugin_duration);
+    </script>
+    <style>
+        #timer, #time-taken {
+            font-size: 24px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="timer">03 min : 00 sec</div>
+    <div id="time-taken"></div>
+    <button onclick="startTimer()">Start Game</button>
+    <button onclick="stopTimer()">Stop Game</button>
 
+    <script>
+        // Initialize variables
+        let totalTime = dayjs.duration({ minutes: 3 }); // Total game time
+        let remainingTime;
+        let interval;
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="./Styles/styles.css" />
-    <link rel="shortcut icon" href="./Images/favicon.png" type="image/x-icon" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css"
-    />
+        // Function to start the timer
+        function startTimer() {
+            remainingTime = totalTime.clone();
+            interval = setInterval(updateTimer, 1000);
+        }
 
-    <script src="./External/flip-master/dist/jquery.flip.min.js"></script>
-    <script src="./External/jquery-toast-plugin-master/dist/jquery.toast.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="./External/jquery-toast-plugin-master/dist/jquery.toast.min.css"
-    />
-    <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-      crossorigin="anonymous"
-      defer
-    ></script>
+        // Function to stop the timer and calculate the time taken
+        function stopTimer() {
+            clearInterval(interval);
+            const timeTaken = totalTime.subtract(remainingTime);
+            const minutes = timeTaken.minutes();
+            const seconds = timeTaken.seconds();
+
+            console.log(`Time taken: ${minutes} minutes and ${seconds} seconds`);
+            document.getElementById('time-taken').innerText = `Time taken: ${minutes} minutes and ${seconds} seconds`;
+        }
+
+        // Function to update the timer display
+        function updateTimer() {
+            if (remainingTime.asSeconds() > 0) {
+                remainingTime = remainingTime.subtract(1, 'second');
+                const minutes = remainingTime.minutes();
+                const seconds = remainingTime.seconds();
+                document.getElementById('timer').innerText = `${minutes.toString().padStart(2, '0')} min : ${seconds.toString().padStart(2, '0')} sec`;
+            } else {
+                clearInterval(interval);
+                document.getElementById('timer').innerText = "Time's up!";
+                // Handle game over logic here
+            }
+        }
+    </script>
+</body>
+</html>
