@@ -9,7 +9,7 @@
 body {
   background: url("../Images/backgound.jpg");
   background-size: auto;
-  background-repeat: no-repeat;
+  background-repeat: repeat;
 }
 
 #play {
