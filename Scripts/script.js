@@ -50,6 +50,12 @@ let interval = 0;
 // * DOM of modal
 const gameModal = $("#game-modal");
 
+// * Boostrap function of modal
+let myModal = undefined;
+
+// * flag to check if the game is Paused
+let isPaused = false;
+
 // * Selecting the label of the moves and pairs
 const pairsFoundlabel = $("#pairs-found-label");
 const movesLabel = $("#moves-label");
@@ -65,9 +71,9 @@ $.getJSON("https://api.npoint.io/b3fe4e7c0075bd200b4d", function (res) {
 
 // ? Function to dynamically create options
 function createGridSelectOption() {
-  Object.keys(timer).forEach((value) => {
+  for (const value in timer) {
     gridSelection.append($("<option>").val(value).text(`${value} x ${value}`));
-  });
+  }
 }
 
 // ? Function to create the div Element boxes
@@ -76,7 +82,7 @@ function createElement(className, value, isFirst) {
     .addClass("game-card")
     .attr("id", isFirst ? value : `idx${value}`);
   let frontElement = $("<div>")
-    .addClass(`front single-card`)
+    .addClass(`front single-card card-hover`)
     .data("place", value);
   let backElement = $("<div>")
     .addClass(`bi ${className} back single-card`)
@@ -172,57 +178,91 @@ function assignfunctionalityTOCards() {
   });
 }
 
+// ! Home Button Functionality
+$("#home-btn").click(homeButtonFunctionality);
+
+// ! Pause Button Functionality
+$("#pause-btn").click(() => {
+  pauseFunctionality(true);
+  showModal(
+    "Paused",
+    `
+    <div class="d-flex flex-column align-items-center gap-2">
+    <img src="./Images/pause.png" alt="pause image" style="width:80px;">
+    <h4>Game Paused !</h4>
+    <div class="d-flex justify-content-center align-items-center gap-3">
+    <button class="btn btn-outline-primary px-4 py-0 rounded-2 d-flex align-items-center gap-2" id="modal-play-btn">
+    <span class="bi bi-play-circle-fill fs-3">
+    </span>
+    <span class="fs-5">
+    PLAY
+    </span>
+    </button>
+    <button class="btn btn-success px-4 py-0 rounded-2 d-flex align-items-center gap-2" id="modal-home-btn">
+    <span class=" bi bi-house-fill fs-3">
+    </span>
+    <span class="fs-5">
+    HOME
+    </span>
+    </button>
+    </div> 
+    </div>`
+  );
+});
+
+// ? Pause button functionality
+function pauseFunctionality(toPauseGame) {
+  isPaused = toPauseGame;
+}
+
 // ? These Functions resets all the variables
 function resetALL() {
   flipped_Elements = [];
-  minutes = 0;
-  seconds = 0;
-  pairs = 0;
-  moves = 0;
-  interval = 0;
+  minutes = seconds = pairs = moves = interval = noOfGrids = progress = inc = 0;
   grid_box = [];
-  noOfGrids = 0;
   gridSelection.val("select");
-  progress = 0;
   $("#timer").html(`<b>00</b> min : <b>00</b> secs`);
   $("#time-bar").css("width", "0%");
   updateMoves(true);
   updatePairs(true);
   gridBoxDom.empty();
+  isPaused = false;
+  clearInterval(interval);
 }
 
 // ? function to start the interval or timer with progress bar.
 function startInterval() {
   interval = setInterval(function () {
-    if (seconds === 0) {
-      seconds = 59;
-      minutes--;
-    } else {
-      seconds--;
-    }
-    if (minutes === 0 && seconds === 0) {
-      clearInterval(interval);
-      if (!checkIsWinner()) {
-        showModal(
-          "Time OUT !",
-          getModalMessage(
-            "../Images/timeout.png",
-            "You LOST !",
-            `<span>Time Given: <b>${timer[noOfGrids]}</b> min : <b>00</b> secs</span>`
-          )
-        );
+    if (!isPaused) {
+      if (seconds === 0) {
+        seconds = 59;
+        minutes--;
+      } else {
+        seconds--;
       }
+      if (minutes === 0 && seconds === 0) {
+        clearInterval(interval);
+        if (!checkIsWinner()) {
+          showModal(
+            "Time OUT !",
+            getModalMessage(
+              "./Images/timeout.png",
+              "You LOST !",
+              `<span>Time Given: <b>${timer[noOfGrids]}</b> min : <b>00</b> secs</span>`
+            )
+          );
+        }
+      }
+      $("#timer").html(`<b>${minutes}</b> min : <b>${seconds}</b> secs`);
+      progress += inc;
+      $("#time-bar").css("width", progress + "%");
     }
-    $("#timer").html(`<b>${minutes}</b> min : <b>${seconds}</b> secs`);
-    progress += inc;
-    $("#time-bar").css("width", progress + "%");
   }, 1000);
 }
 
 // ? Show toasts function
 function showToasts(text, heading) {
   $.toast({
-    heading: "Information",
     text: text,
     heading: heading,
     icon: "success",
@@ -269,7 +309,7 @@ function calculateDiffTime() {
 function getModalMessage(image, winner, timeMessage) {
   return `
     <div class="d-flex gap-3 justify-content-center flex-column align-items-center">
-    <img src="${image}" class="img-modal-body">
+    <img src="${image}" class="img-modal-body" alt="winner or loser image">
     <h4>${winner}</h4>
     <div class="d-flex gap-2 flex-column">
    ${timeMessage}
@@ -287,7 +327,7 @@ function checkIsWinner() {
     showModal(
       "Congratulations !",
       getModalMessage(
-        "../Images/winner.png",
+        "./Images/winner.png",
         "You Won !!",
         `<span>Time Taken: <b>${diffTime[0]}</b> min : <b>${diffTime[1]}</b> secs</span>`
       )
@@ -297,20 +337,48 @@ function checkIsWinner() {
   return false;
 }
 
-// ? these function shows the modal whenever the timeout and wins the game.
-function showModal(title, html) {
-  $(function () {
-    gameModal
-      .find(".modal-footer button,.modal-header button")
-      .click(function () {
-        resetALL();
-        setStartPage(true);
-      });
-    gameModal.find(".modal-title").text(title);
-    gameModal.find(".modal-body").html(html);
-    const myModal = new bootstrap.Modal("#game-modal");
-    myModal.show();
-  });
+// ? Function to reset all variable and go back to start page.
+function startNewGame() {
+  resetALL();
+  setStartPage(true);
 }
 
-calculateDiffTime();
+// ? Home button which asks for the confirmation
+function homeButtonFunctionality() {
+  window.location.reload();
+}
+
+// ! Loads the boostrap modal when the document is ready
+$(function () {
+  myModal = new bootstrap.Modal("#game-modal", {
+    backdrop: "static",
+    keyboard: false,
+  });
+});
+
+// ? these function shows the modal whenever the timeout and wins the game.
+function showModal(title, html) {
+  gameModal
+    .find(".modal-footer button,.modal-header button")
+    .click(startNewGame);
+  gameModal.find(".modal-title").text(title);
+  gameModal.find(".modal-body").html(html);
+  gameModal.find(".modal-footer,.modal-header button").show();
+  if (isPaused) {
+    gameModal.find(".modal-footer,.modal-header button").hide();
+    gameModal.find(".modal-body div > #modal-play-btn").click(function () {
+      pauseFunctionality(false);
+      myModal.hide();
+    });
+    gameModal
+      .find(".modal-body div> #modal-home-btn")
+      .click(homeButtonFunctionality);
+  }
+  myModal.show();
+}
+
+/*
+https://www.npoint.io/docs/b3fe4e7c0075bd200b4d -> json file
+
+https://api.npoint.io/b3fe4e7c0075bd200b4d
+*/

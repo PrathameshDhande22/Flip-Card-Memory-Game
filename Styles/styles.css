@@ -42,9 +42,6 @@ body {
   padding: 20px;
   text-align: center;
   border-radius: 10px;
-  &:hover {
-    box-shadow: rgba(255, 255, 255, 0.726) 0px 0px 5px 5px;
-  }
 }
 
 .grid-box {
@@ -85,4 +82,8 @@ body {
 
 .img-modal-body {
   width: 130px;
+}
+
+.card-hover:hover {
+  box-shadow: rgba(255, 255, 255, 0.726) 0px 0px 5px 5px;
 }
