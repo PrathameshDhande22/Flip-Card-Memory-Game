@@ -20,24 +20,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="./Styles/styles.css" />
     <link rel="shortcut icon" href="./Images/favicon.png" type="image/x-icon" />
-    <script src="./External/flip-master/dist/jquery.flip.min.js"></script>
-    <link rel="stylesheet" href="" />
-    <script src="./External/jquery-toast-plugin-master/dist/jquery.toast.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="./External/jquery-toast-plugin-master/dist/jquery.toast.min.css"
-    />
     <script
       src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
       integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
       crossorigin="anonymous"
       defer
     ></script>
-    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/duration.js"></script>
-    <script>
-      dayjs.extend(dayjs_plugin_duration);
-    </script>
   </head>
   <body>
     <!-- Start Page -->
@@ -78,7 +66,7 @@
               type="button"
               class="btn btn-primary p-0 px-2"
               id="home-btn"
-             title="Home Button"
+              title="Home Button"
             >
               <span class="bi bi-house-door fs-4"></span>
             </button>
@@ -103,7 +91,7 @@
           style="height: 7px"
         >
           <div
-            class="progress-bar bg-info"
+            class="progress-bar bg-info rounded-end-2"
             id="time-bar"
             style="width: 0%"
           ></div>
@@ -145,7 +133,15 @@
         </div>
       </div>
     </div>
-
+    <!-- Toasts -->
+    <div
+      class="bg-white rounded-3 py-2 px-4 d-flex flex-row gap-2 align-items-center position-absolute hide-toast"
+      id="game-toast"
+    >
+      <span class="bi fs-5 text-success" id="toast-icon"></span>
+      <span class="toast-font" id="toast-body"></span>
+    </div>
+    <script src="./Scripts/data.js"></script>
     <script src="./Scripts/script.js"></script>
   </body>
 </html>

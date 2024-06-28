@@ -71,6 +71,7 @@ body {
 #time-bar {
   transition: width 0.6s ease-in;
 }
+
 .back {
   background-color: #c0392b;
   color: white;
@@ -86,4 +87,101 @@ body {
 
 .card-hover:hover {
   box-shadow: rgba(255, 255, 255, 0.726) 0px 0px 5px 5px;
+}
+
+.flip-container {
+  perspective: 1000px;
+  width: 100%;
+  height: 100px;
+}
+
+.flip-inner {
+  transform-style: preserve-3d;
+  transition: transform 0.4s;
+  text-align: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.flip-front,
+.flip-back {
+  position: absolute;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+}
+
+.flipped .flip-inner {
+  transform: rotateY(180deg);
+}
+
+.toast-font {
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+}
+
+#game-toast {
+  bottom: 30px;
+  z-index: 10;
+  left: 30px;
+}
+
+.hide-toast {
+  visibility: hidden;
+}
+
+.show-toast {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+  from {
+    left: 0;
+    opacity: 0;
+  }
+  to {
+    left: 30px;
+    opacity: 1;
+  }
+}
+
+@keyframes fadein {
+  from {
+    left: 0;
+    opacity: 0;
+  }
+  to {
+    left: 30px;
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeout {
+  from {
+    left: 30px;
+    opacity: 1;
+  }
+  to {
+    left: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    left: 30px;
+    opacity: 1;
+  }
+  to {
+    left: 0;
+    opacity: 0;
+  }
 }

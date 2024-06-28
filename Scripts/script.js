@@ -60,13 +60,18 @@ let isPaused = false;
 const pairsFoundlabel = $("#pairs-found-label");
 const movesLabel = $("#moves-label");
 
-// * To fetch the json data for storing the symbols and timer
-$.getJSON("https://api.npoint.io/b3fe4e7c0075bd200b4d", function (res) {
-  symbols = res?.symbols;
-  timer = res?.timer;
+// * Toast DOM
+const toast = $("#game-toast");
+
+// ! Document Ready event to load all the required after the dom is ready
+$(function () {
+  myModal = new bootstrap.Modal("#game-modal", {
+    backdrop: "static",
+    keyboard: false,
+  });
+  symbols = data?.symbols;
+  timer = data?.timer;
   createGridSelectOption();
-}).fail(function () {
-  alert("API Failed to get the data.");
 });
 
 // ? Function to dynamically create options
@@ -76,18 +81,26 @@ function createGridSelectOption() {
   }
 }
 
-// ? Function to create the div Element boxes
+// ? Function to toggle the toast whether to show or hide
+function toggleToast(toHide) {
+  toast.removeClass(toHide ? "hide-toast" : "show-toast");
+  toast.addClass(toHide ? "show-toast" : "hide-toast");
+}
+
+// ? Function to create the div Element boxes or grid card
 function createElement(className, value, isFirst) {
-  let divElement = $("<div>")
-    .addClass("game-card")
+  let flipContainer = $("<div>")
+    .addClass("game-card flip-container")
     .attr("id", isFirst ? value : `idx${value}`);
+  let flipInner = $("<div>").addClass("flip-inner");
   let frontElement = $("<div>")
-    .addClass(`front single-card card-hover`)
+    .addClass(`flip-front front single-card card-hover`)
     .data("place", value);
   let backElement = $("<div>")
-    .addClass(`bi ${className} back single-card`)
+    .addClass(`bi ${className} flip-back back single-card`)
     .data("place", value);
-  return divElement.append(frontElement, backElement);
+  flipInner.append(frontElement, backElement);
+  return flipContainer.append(flipInner);
 }
 
 // ? Shuffle The array of the grid box
@@ -103,6 +116,7 @@ function shuffleArray(array) {
 
 // ? Function to set to game page
 function setGame(grids) {
+  symbols = shuffleArray(symbols);
   minutes = timer[grids];
   gridBoxDom.css("grid-template-columns", "auto ".repeat(grids));
   inc = 100 / (minutes * 60);
@@ -157,18 +171,10 @@ function assignfunctionalityTOCards() {
   // * Game Card div DOM
   let gameCards = $(".game-card");
 
-  // * Attaching the flip function to every game cards
-  gameCards.each(function (idx, value) {
-    $(value)
-      .flip({ trigger: "manual", speed: "300" })
-      .click(function () {
-        $(this).flip(true);
-      });
-  });
-
   // * Click functions on each game card
   gameCards.on("click", function (e) {
     if (!$(e.target).is(".back")) {
+      $(e.target).parents(".flip-container").addClass("flipped");
       updateMoves();
       flipped_Elements.push(e.target);
       if (flipped_Elements.length >= 2) {
@@ -261,24 +267,18 @@ function startInterval() {
 }
 
 // ? Show toasts function
-function showToasts(text, heading) {
-  $.toast({
-    text: text,
-    heading: heading,
-    icon: "success",
-    loader: true,
-    showHideTransition: "fade",
-    position: "left",
-    loaderBg: "#e8960f",
-    bgColor: "#742eff",
-    stack: false,
-    hideAfter: 1000,
-  });
+function showToast(text, icon) {
+  toggleToast(true);
+  $("#toast-body").text(text);
+  $("#toast-icon").addClass(icon);
+  setTimeout(() => toggleToast(false), 2800);
 }
 
 // ? flip Back for the Pushed element.
 function flipBack() {
-  flipped_Elements.forEach((card) => $(card).parents(".game-card").flip(false));
+  flipped_Elements.forEach((card) => {
+    $(card).parents(".flip-container").removeClass("flipped");
+  });
   flipped_Elements = [];
 }
 
@@ -289,20 +289,23 @@ function checkmatched() {
     $(flipped_Elements[1]).data("place")
   ) {
     updatePairs();
-    showToasts("You found New Pair", "Pair Found");
+    showToast("You found New Pair", "bi-check-circle-fill");
     if (checkIsWinner()) clearInterval(interval);
     flipped_Elements = [];
   } else {
-    setTimeout(flipBack, 300);
+    setTimeout(flipBack, 400);
   }
 }
 
 // ? Function to Calculate difference between two timers
 function calculateDiffTime() {
-  let diffTime = dayjs
-    .duration({ minutes: timer[noOfGrids] })
-    .subtract(dayjs.duration({ minutes: minutes, seconds: seconds }));
-  return [diffTime.minutes(), diffTime.seconds()];
+  const timeAllotatedInSeconds = timer[noOfGrids] * 60;
+  const remainingTimeInSeconds = minutes * 60 + seconds;
+  const differenceTimeinSeconds =
+    timeAllotatedInSeconds - remainingTimeInSeconds;
+  const diffMinutes = Math.floor(differenceTimeinSeconds / 60);
+  const diffSeconds = differenceTimeinSeconds % 60;
+  return [diffMinutes, diffSeconds];
 }
 
 // ? Returns the modal message
@@ -323,13 +326,13 @@ function getModalMessage(image, winner, timeMessage) {
 // ? Function to check if game is in winning mode.
 function checkIsWinner() {
   if (pairs === (noOfGrids * noOfGrids) / 2) {
-    let diffTime = calculateDiffTime();
+    let [diffMinutes, diffSeconds] = calculateDiffTime();
     showModal(
       "Congratulations !",
       getModalMessage(
         "./Images/winner.png",
         "You Won !!",
-        `<span>Time Taken: <b>${diffTime[0]}</b> min : <b>${diffTime[1]}</b> secs</span>`
+        `<span>Time Taken: <b>${diffMinutes}</b> min : <b>${diffSeconds}</b> secs</span>`
       )
     );
     return true;
@@ -347,14 +350,6 @@ function startNewGame() {
 function homeButtonFunctionality() {
   window.location.reload();
 }
-
-// ! Loads the boostrap modal when the document is ready
-$(function () {
-  myModal = new bootstrap.Modal("#game-modal", {
-    backdrop: "static",
-    keyboard: false,
-  });
-});
 
 // ? these function shows the modal whenever the timeout and wins the game.
 function showModal(title, html) {

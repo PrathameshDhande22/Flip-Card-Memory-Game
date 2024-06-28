@@ -1,5 +1,5 @@
-{
-  "symbols": [
+const data = {
+  symbols: [
     "bi-airplane-engines-fill",
     "bi-alarm-fill",
     "bi-android2",
@@ -31,12 +31,12 @@
     "bi-envelope-fill",
     "bi-floppy-fill",
     "bi-lightbulb-fill",
-    "bi-shield-fill-check"
+    "bi-shield-fill-check",
   ],
-  "timer": {
-    "2": 1,
-    "4": 2,
-    "6": 4,
-    "8": 6
-  }
-}
+  timer: {
+    2: 1,
+    4: 2,
+    6: 4,
+    8: 6,
+  },
+};
