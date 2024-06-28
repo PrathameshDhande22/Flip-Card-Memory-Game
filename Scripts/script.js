@@ -371,9 +371,3 @@ function showModal(title, html) {
   }
   myModal.show();
 }
-
-/*
-https://www.npoint.io/docs/b3fe4e7c0075bd200b4d -> json file
-
-https://api.npoint.io/b3fe4e7c0075bd200b4d
-*/
