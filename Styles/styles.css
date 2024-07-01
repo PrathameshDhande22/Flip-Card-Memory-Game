@@ -97,7 +97,7 @@ body {
 
 .flip-inner {
   transform-style: preserve-3d;
-  transition: transform 0.4s;
+  transition: transform 0.3s;
   text-align: center;
   position: relative;
   width: 100%;

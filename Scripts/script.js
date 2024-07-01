@@ -98,7 +98,7 @@ function createElement(className, value, isFirst) {
     .data("place", value);
   let backElement = $("<div>")
     .addClass(`bi ${className} flip-back back single-card`)
-    .data("place", value);
+    .data("place", value); // data-place
   flipInner.append(frontElement, backElement);
   return flipContainer.append(flipInner);
 }
@@ -169,17 +169,15 @@ function updatePairs(reset = false) {
 // ? Function to assign the flip functionality to each card
 function assignfunctionalityTOCards() {
   // * Game Card div DOM
-  let gameCards = $(".game-card");
+  let gameCards = $(".front");
 
   // * Click functions on each game card
   gameCards.on("click", function (e) {
-    if (!$(e.target).is(".back")) {
-      $(e.target).parents(".flip-container").addClass("flipped");
-      updateMoves();
-      flipped_Elements.push(e.target);
-      if (flipped_Elements.length >= 2) {
-        checkmatched();
-      }
+    $(e.target).parents(".flip-container").addClass("flipped");
+    updateMoves();
+    flipped_Elements.push(e.target);
+    if (flipped_Elements.length >= 2 && flipped_Elements.length <= 2) {
+      checkmatched();
     }
   });
 }
@@ -276,14 +274,15 @@ function showToast(text, icon) {
 
 // ? flip Back for the Pushed element.
 function flipBack() {
-  flipped_Elements.forEach((card) => {
-    $(card).parents(".flip-container").removeClass("flipped");
+  const tempElem = flipped_Elements.splice(0, 2);
+  tempElem.forEach((value) => {
+    $(value).parents(".flip-container").removeClass("flipped");
   });
-  flipped_Elements = [];
 }
 
 // ? Match pairs found function
 function checkmatched() {
+  // data-place =0
   if (
     $(flipped_Elements[0]).data("place") ===
     $(flipped_Elements[1]).data("place")
