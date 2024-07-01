@@ -63,6 +63,9 @@ const movesLabel = $("#moves-label");
 // * Toast DOM
 const toast = $("#game-toast");
 
+// * Variable to store the counts of flipped
+let count = 0;
+
 // ! Document Ready event to load all the required after the dom is ready
 $(function () {
   myModal = new bootstrap.Modal("#game-modal", {
@@ -173,10 +176,15 @@ function assignfunctionalityTOCards() {
 
   // * Click functions on each game card
   gameCards.on("click", function (e) {
+    if (count === 2) {
+      return;
+    }
+    count++;
+    console.log(count);
     $(e.target).parents(".flip-container").addClass("flipped");
     updateMoves();
     flipped_Elements.push(e.target);
-    if (flipped_Elements.length >= 2 && flipped_Elements.length <= 2) {
+    if (flipped_Elements.length >= 2) {
       checkmatched();
     }
   });
@@ -274,10 +282,11 @@ function showToast(text, icon) {
 
 // ? flip Back for the Pushed element.
 function flipBack() {
-  const tempElem = flipped_Elements.splice(0, 2);
-  tempElem.forEach((value) => {
+  flipped_Elements.forEach((value) => {
     $(value).parents(".flip-container").removeClass("flipped");
   });
+  flipped_Elements = [];
+  count = 0;
 }
 
 // ? Match pairs found function
@@ -291,8 +300,10 @@ function checkmatched() {
     showToast("You found New Pair", "bi-check-circle-fill");
     if (checkIsWinner()) clearInterval(interval);
     flipped_Elements = [];
+    count = 0;
   } else {
     setTimeout(flipBack, 400);
+    // flipBack()
   }
 }
 
