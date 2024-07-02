@@ -180,7 +180,6 @@ function assignfunctionalityTOCards() {
       return;
     }
     count++;
-    console.log(count);
     $(e.target).parents(".flip-container").addClass("flipped");
     updateMoves();
     flipped_Elements.push(e.target);
@@ -303,7 +302,6 @@ function checkmatched() {
     count = 0;
   } else {
     setTimeout(flipBack, 400);
-    // flipBack()
   }
 }
 
